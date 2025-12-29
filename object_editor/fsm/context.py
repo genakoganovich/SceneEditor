@@ -1,12 +1,18 @@
 from .transitions import TRANSITIONS
 from .action_executor import ActionExecutor
 
-
 class FSMContext:
-    def __init__(self, initial_state_cls):
+    def __init__(self, initial_state):
+        """
+        initial_state: готовый объект состояния (не класс)
+        """
         self.executor = ActionExecutor(self)
 
-        self.state = initial_state_cls(self)
+        self.state = initial_state
+        # Передаём ctx, если состояние его ожидает
+        if hasattr(self.state, 'ctx'):
+            self.state.ctx = self
+
         self.state.on_enter()
 
     def dispatch(self, event):
@@ -21,6 +27,8 @@ class FSMContext:
             print(f"[FSM] {state_cls.__name__} → {new_state_cls.__name__}")
 
             self.state.on_exit()
+            # Если новый объект уже создан заранее (например, декоратор),
+            # можно сделать фабрику или передавать готовый объект
             self.state = new_state_cls(self)
             self.state.on_enter()
         else:
