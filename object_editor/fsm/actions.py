@@ -2,10 +2,9 @@
 
 from enum import Enum, auto
 
-
 class Action(Enum):
-    ADD_OBJECT = auto()
-    DELETE_OBJECT = auto()
-    MOVE_OBJECT = auto()
+    PICK_OBJECT = auto()
     HIGHLIGHT_OBJECT = auto()
     CLEAR_SELECTION = auto()
+    DELETE_OBJECT = auto()
+    MOVE_OBJECT = auto()

@@ -1,21 +1,14 @@
-# object_editor/fsm/action_executor.py
-
-from object_editor.fsm.action_registry import ACTION_REGISTRY
+from .action_registry import PRE_ACTIONS, POST_ACTIONS
 
 
 class ActionExecutor:
-    """
-    Выполняет побочные действия FSM.
-    Пока только логирует — без PyVista.
-    """
+    def __init__(self, ctx):
+        self.ctx = ctx  # здесь позже будет PyVista
 
-    def execute(self, state, event, ctx):
-        key = (type(state), event)
-        actions = ACTION_REGISTRY.get(key, [])
+    def run_pre(self, state, event):
+        for action in PRE_ACTIONS.get((type(state), event), []):
+            print(f"[PRE_ACTION] {action}")
 
-        for action in actions:
-            self._execute_action(action, ctx)
-
-    def _execute_action(self, action, ctx):
-        # Пока просто логируем
-        print(f"[ACTION] {action}")
+    def run_post(self, state, event):
+        for action in POST_ACTIONS.get((type(state), event), []):
+            print(f"[POST_ACTION] {action}")
