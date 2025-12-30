@@ -1,17 +1,23 @@
+# object_editor/fsm/context.py
+
 from .transitions import TRANSITIONS
 from .action_executor import ActionExecutor
+
 
 class FSMContext:
     def __init__(self, initial_state):
         """
-        initial_state: готовый объект состояния (не класс)
+        initial_state: класс состояния ИЛИ готовый объект
         """
         self.executor = ActionExecutor(self)
 
-        self.state = initial_state
-        # Передаём ctx, если состояние его ожидает
-        if hasattr(self.state, 'ctx'):
-            self.state.ctx = self
+        # ✅ Если передали класс — создаём объект
+        if isinstance(initial_state, type):
+            self.state = initial_state(self)
+        else:
+            self.state = initial_state
+            if hasattr(self.state, "ctx"):
+                self.state.ctx = self
 
         self.state.on_enter()
 
@@ -27,8 +33,6 @@ class FSMContext:
             print(f"[FSM] {state_cls.__name__} → {new_state_cls.__name__}")
 
             self.state.on_exit()
-            # Если новый объект уже создан заранее (например, декоратор),
-            # можно сделать фабрику или передавать готовый объект
             self.state = new_state_cls(self)
             self.state.on_enter()
         else:
